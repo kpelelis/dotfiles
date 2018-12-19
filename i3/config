@@ -1,0 +1,207 @@
+# Mod = Win key
+set $mod Mod4
+
+font pango:System San Francisco Display 8
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# Workspaces Config {
+	# Bind workspace names to variables for easier changes
+	set $ws1 "term"
+	set $ws2 "www"
+	set $ws3 "email"
+	set $ws4 "chat"
+	set $ws5 "music"
+	set $ws6 "/dev/null"
+	set $ws7 7
+	set $ws8 8
+	set $ws9 9
+	set $ws10 10
+
+	# switch to workspace
+	bindsym $mod+1 workspace $ws1
+	bindsym $mod+2 workspace $ws2
+	bindsym $mod+3 workspace $ws3
+	bindsym $mod+4 workspace $ws4
+	bindsym $mod+5 workspace $ws5
+	bindsym $mod+6 workspace $ws6
+	bindsym $mod+7 workspace $ws7
+	bindsym $mod+8 workspace $ws8
+	bindsym $mod+9 workspace $ws9
+	bindsym $mod+0 workspace $ws10
+
+	# move focused container to workspace
+	bindsym $mod+Shift+1 move container to workspace $ws1
+	bindsym $mod+Shift+2 move container to workspace $ws2
+	bindsym $mod+Shift+3 move container to workspace $ws3
+	bindsym $mod+Shift+4 move container to workspace $ws4
+	bindsym $mod+Shift+5 move container to workspace $ws5
+	bindsym $mod+Shift+6 move container to workspace $ws6
+	bindsym $mod+Shift+7 move container to workspace $ws7
+	bindsym $mod+Shift+8 move container to workspace $ws8
+	bindsym $mod+Shift+9 move container to workspace $ws9
+	bindsym $mod+Shift+0 move container to workspace $ws10
+# }
+
+
+# Bar Config {
+	bar {
+		status_command i3blocks
+		position top
+		mode dock
+	}
+# }
+
+# Color config {
+	#                       border              background         text                 indicator
+	set $border_color        #111111
+	set $bg-color 	         #2f343f
+	set $inactive-bg-color   #2f343f
+	set $text-color          #f3f4f5
+	set $inactive-text-color #676E7D
+	set $urgent-bg-color     #E53935
+
+	client.focused          $border_color       $bg-color          $text-color          #00ff00
+	client.unfocused        $border_color       $inactive-bg-color $inactive-text-color #00ff00
+	client.focused_inactive $border_color       $inactive-bg-color $inactive-text-color #00ff00
+	client.urgent           $border_color       $urgent-bg-color   $text-color          #00ff00
+# }
+
+# Workspace binding {
+	assign [class="terminator"] term
+	assign [class="Chromium"] www
+	assign [class="Thunderbird"] email
+	assign [class="Slack"] chat
+	assign [class="Spotify"] music
+# }
+
+# Startup binaries {
+	# Background image
+	exec_always feh --bg-center ~/Pictures/Wallpapers/index.jpg
+
+	# Start wifi connection ool
+	exec_always --no-startup-id nm-applet
+
+	# Current monitor config
+	exec_always --no-startup-id xrandr --output DP-1-2 --above eDP-1 
+
+	# Keyboard setup for greek
+	exec_always --no-startup-id "setxkbmap -model pc105 -layout us,gr -option grp:alt_shift_toggle"
+
+	exec chromium
+	exec terminator
+	exec thunderbird
+	exec slack
+	exec spotify
+# }
+
+# Bindings {
+	# start a terminal
+	bindsym $mod+Return exec terminator
+
+	# kill focused window
+	bindsym $mod+Shift+q kill
+
+	# reload the configuration file
+	bindsym $mod+Shift+c reload
+	# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+	bindsym $mod+Shift+r restart
+	# exit i3 (logs you out of your X session)
+	bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+
+	# Resize window
+	bindsym $mod+r mode "resize"
+
+	# change focus
+	bindsym $mod+j focus left
+	bindsym $mod+k focus right
+	bindsym $mod+h focus up
+	bindsym $mod+l focus down
+
+	# alternatively, you can use the cursor keys:
+	bindsym $mod+Left focus left
+	bindsym $mod+Down focus down
+	bindsym $mod+Up focus up
+	bindsym $mod+Right focus right
+
+	# move focused window
+	bindsym $mod+Shift+j move left
+	bindsym $mod+Shift+k move down
+	bindsym $mod+Shift+l move up
+	bindsym $mod+Shift+semicolon move right
+
+	# alternatively, you can use the cursor keys:
+	bindsym $mod+Shift+Left move left
+	bindsym $mod+Shift+Down move down
+	bindsym $mod+Shift+Up move up
+	bindsym $mod+Shift+Right move right
+
+	# split in horizontal orientation
+	bindsym $mod+v split h
+
+	# split in vertical orientation
+	bindsym $mod+o split v
+
+	# enter fullscreen mode for the focused container
+	bindsym $mod+f fullscreen toggle
+
+	# change container layout (stacked, tabbed, toggle split)
+	bindsym $mod+s layout stacking
+	bindsym $mod+w layout tabbed
+	bindsym $mod+e layout toggle split
+
+	# toggle tiling / floating
+	bindsym $mod+Shift+space floating toggle
+
+	# change focus between tiling / floating windows
+	bindsym $mod+space focus mode_toggle
+
+	# Screenshot
+	bindsym Print ssclip
+
+	# dmenu
+	bindsym $mod+d exec rofi -show run -lines 3 -eh 2 -width 100 -padding 800 -opacity "85" -bw 0 -bc "$bg-color" -bg "$bg-color" -fg "$text-color" -hlbg "$bg-color" -hlfg "#9575cd" -font "System San Francisco Display 18"
+
+	# Move workspaces
+	bindsym $mod+Control+Left move workspace to output left
+	bindsym $mod+Control+Right move workspace to output right
+	bindsym $mod+Control+Up move workspace to output up
+	bindsym $mod+Control+Down move workspace to output down
+
+	# Lock script
+	bindsym $mod+x exec ~/.config/i3/scripts/lock.sh
+
+	# Pulse Audio controls
+	bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume 1 +5% 
+	bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume 1 -5%
+	bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 1 toggle
+
+	# Sreen brightness controls
+	bindsym XF86MonBrightnessUp exec xbacklight -inc 20 # increase screen brightness
+	bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightness
+
+	# Media player controls
+	bindsym XF86AudioPlay exec playerctl play
+	bindsym XF86AudioPause exec playerctl pause
+	bindsym XF86AudioNext exec playerctl next
+	bindsym XF86AudioPrev exec playerctl previous
+
+	# These bindings trigger as soon as you enter the resize mode
+	mode "resize" {
+		bindsym j resize shrink width 10 px or 10 ppt
+		bindsym k resize grow height 10 px or 10 ppt
+		bindsym l resize shrink height 10 px or 10 ppt
+		bindsym semicolon resize grow width 10 px or 10 ppt
+
+		# same bindings, but for the arrow keys
+		bindsym Left resize shrink width 10 px or 10 ppt
+		bindsym Down resize grow height 10 px or 10 ppt
+		bindsym Up resize shrink height 10 px or 10 ppt
+		bindsym Right resize grow width 10 px or 10 ppt
+
+		# back to normal: Enter or Escape
+		bindsym Return mode "default"
+		bindsym Escape mode "default"
+	}
+# }
