@@ -1,0 +1,176 @@
+[user]
+    name = Kostas Pelelis
+    email = kpelelisos@gmail.com
+[alias]
+    ###### Common ######
+    
+    # Make branch 
+    b = branch
+    # Move branch
+    bm = "!f() { git branch -f $@ HEAD; }; f"
+
+    # Pull
+    get = pull --rebase origin main
+    fresh = "!f() { git burn && git om && git get; }; f"
+
+    ###### Navigation ######
+    
+    # Checkout
+    co = checkout
+    up = checkout
+
+    # Go to main
+    om = checkout origin/main
+
+
+    ###### Operating changes ######
+    
+    # Create commit
+    new = commit -a -m
+    # Amend commit
+    amen = commit --amen -a --no-edit
+    ramen = commit --amen --no-edit
+    bramen = !git ramen && git burn
+
+    # Revert files
+    rev = checkout HEAD
+    prev = checkout HEAD~1
+
+    # Stop tracking file but leave it be
+    untrack = rm -r --cached
+
+    # Cleanup
+    hard = reset --hard HEAD
+    cln = clean -df
+    burn = !git hard && git cln
+
+    ###### Merging ######
+    mt = mergetool
+
+    okay = "!f() { git checkout --ours \"$1\" && git add \"$1\"; }; f"
+    mine = "!f() { git checkout --theirs \"$1\" && git add \"$1\"; }; f"
+
+    reco = rebase --continue
+
+    ####### Viewing stuff #######
+    
+    # View the current working tree status using the short format
+    s = status -sb
+
+    # File names that have changed with the latest diff
+    dr = !git --no-pager diff --name-status HEAD~1 | git-status-color.sh
+    #dno = "!f() { git --no-pager diff --name-status \"$@\" }; f"
+    # File names that have changed with the latest diff
+    drr = "!f() { git --no-pager diff --name-status $1 $2 | git-status-color.sh; }; f"
+
+    # Changes in file
+    di = "!f() { git diff -r HEAD~1 $1; }; f"
+
+    # View abbreviated SHA, description, and history graph
+    oldslog = log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+    slog = "!f() { git log --all --graph --date=format:'%y/%m/%d %H:%M:%S' --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s\n%Cgreen%cr (%cd) %C(bold blue)<%an>%Creset\n' --abbrev-commit `git reflog --pretty=format:'%h' | head -n 20 | tr '\n' ' '`; }; f"
+    eslog = "!f() { git log --all --graph --stat --date=format:'%y/%m/%d %H:%M:%S' --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s\n%Cgreen%cr (%cd) %C(bold blue)<%an>%Creset\n' --abbrev-commit `git reflog --pretty=format:'%h' | head -n 20 | tr '\n' ' '`; }; f"
+    l = !git --no-pager log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative -n 50
+    rlog = reflog --date=iso
+    sl = !git slog
+    history = log -p --pretty=format:'%Cgreen%h%Creset <%cn %ae> - %C(yellow)%s%Creset\n%cd\n'
+
+    desc = !git --no-pager show --stat
+
+    ###### Manipulating commits ######
+    
+    # rebase last commit on main
+    chop = rebase --onto origin/main HEAD~1 HEAD
+    here = "!f() { git rebase --onto HEAD \"$1\"~1 $1; }; f"
+
+    ###### Misc ######
+
+    # Stash operations
+    # http://stackoverflow.com/questions/11269256/how-to-name-and-retrieve-a-stash-by-name-in-git
+    sshow = "!f() { git stash show stash^{/$*} -p; }; f"
+    sapply = "!f() { git stash apply stash^{/$*}; }; f"
+
+    # Ignore files
+    skip = update-index --skip-worktree
+    noskip = update-index --no-skip-worktree
+    skipped = "!f() { git ls-files -v | grep \"^S \"; }; f"
+
+    ###### Unused ######
+    # Show the diff between the latest commit and the current state
+    #d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
+    # `git di $number` shows the diff between the state `$number` revisions ago and the current state
+    #di = !"d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d"
+    # Pull in remote changes for the current repository and all its submodules
+    #p = !"git pull; git submodule foreach git pull origin main"
+    # Clone a repository including all submodules
+    #c = clone --recursive
+    # Commit all changes
+    #ca = !git add -A && git commit -av
+    # Show verbose output about tags, branches or remotes
+    #tags = tag -l
+    branches = branch -a
+    remotes = remote -v
+    # Credit an author on the latest commit
+    #credit = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+    # Interactive rebase with the given number of latest commits
+    #reb = "!r() { git rebase -i HEAD~$1; }; r"
+
+[core]
+    # Use custom `.gitignore` and `.gitattributes`
+    excludesfile = ~/.gitignore
+    attributesfile = ~/.gitattributes
+    whitespace = trailing-space
+    trustctime = false
+    preloadindex = true
+    fscache = true
+    #pager = cat
+
+[color]
+    # Use colors in Git commands that are capable of colored output when
+    # outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
+    ui = auto
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+# URL shorthands
+[url "git@github.com:grafana/"]
+    insteadOf = "ghg:"
+    pushInsteadOf = "ghg:"
+[url "git@github.com:"]
+    insteadOf = "gh:"
+    pushInsteadOf = "github:"
+    pushInsteadOf = "git://github.com/"
+[url "git://github.com/"]
+    insteadOf = "github:"
+[url "git@gist.github.com:"]
+    insteadOf = "gst:"
+    pushInsteadOf = "gist:"
+    pushInsteadOf = "git://gist.github.com/"
+[url "git://gist.github.com/"]
+    insteadOf = "gist:"
+
+[push]
+    default = matching
+[diff]
+    tool = vimdiff
+[difftool]
+    prompt = false
+[mergetool]
+    prompt = false
+[gc]
+    auto = 256
+[credential]
+    helper = manager
+[pull]
+    rebase = true

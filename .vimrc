@@ -1,25 +1,27 @@
 " vim: sw=4 ts=4 sts=4 et
 
+autocmd BufEnter * :syntax sync fromstart
+set redrawtime=10000
+
+
 " Load plugins {
     call plug#begin('~/.vim/plugged')
         Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
         Plug 'junegunn/fzf.vim'
         Plug 'tpope/vim-fugitive'
-        Plug 'fatih/vim-go'
         Plug 'itchyny/lightline.vim'
-        Plug 'romainl/vim-cool'
         Plug 'tpope/vim-commentary'
-        Plug 'christoomey/vim-tmux-navigator'
         Plug 'scrooloose/nerdtree'
         Plug 'raimondi/delimitmate'
         Plug 'qpkorr/vim-bufkill'
-        Plug 'jwalton512/vim-blade'
+        Plug 'HerringtonDarkholme/yats.vim'
+        Plug 'peitalin/vim-jsx-typescript'
+        Plug 'neoclide/coc.nvim', {'branch': 'release'}
         Plug 'mgee/lightline-bufferline'
         Plug 'w0ng/vim-hybrid'
+        Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
         Plug 'cocopon/lightline-hybrid.vim'
         Plug 'skywind3000/asyncrun.vim'
-        Plug 'tikhomirov/vim-glsl'
-        Plug 'SirVer/ultisnips'
         Plug 'godlygeek/tabular'
         Plug 'plasticboy/vim-markdown'
         " Plug 'liuchengxu/vim-which-key' This is nice for beginners
@@ -236,21 +238,14 @@
     " Filetypes
         autocmd BufNewFile,BufRead *.go setlocal noexpandtab tabstop=4 shiftwidth=4 softtabstop=4
         autocmd BufNewFile,BufRead *.tex setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
-        autocmd BufNewFile,BufRead *.js setlocal expandtab tabstop=4 shiftwidth=4 softtabstop=4
+        autocmd BufNewFile,BufRead *.ts,*.js,*.tsx setlocal expandtab tabstop=2 shiftwidth=2 softtabstop=2
         autocmd BufNewFile,BufRead *.php setlocal expandtab tabstop=4 shiftwidth=4 softtabstop=4
-        autocmd BufNewFile,BufRead *.blade.php setlocal noexpandtab tabstop=2 shiftwidth=2 softtabstop=2
-        autocmd BufNewFile,BufRead *.blade.php setlocal noexpandtab tabstop=2 shiftwidth=2 softtabstop=2
         autocmd BufNewFile,BufRead Vagrantfile setlocal expandtab tabstop=2 shiftwidth=2
         autocmd FileType json setlocal expandtab shiftwidth=2 tabstop=2
         autocmd FileType sh   setlocal noexpandtab shiftwidth=4 tabstop=4
         autocmd FileType yaml setlocal expandtab shiftwidth=2 tabstop=2
         autocmd FileType glsl setlocal noexpandtab shiftwidth=4 tabstop=4
         autocmd BufNewFile,BufRead *.vim setlocal expandtab shiftwidth=2 tabstop=2
-        augroup filetypedetect
-            autocmd BufNewFile,BufRead .tmux.conf*,tmux.conf* setf tmux
-            autocmd BufNewFile,BufRead Vagrantfile setf ruby
-            autocmd BufNewFile,BufRead .nginx.conf*,nginx.conf* setf nginx
-        augroup END
 
         " put quickfix window always to the bottom
         autocmd FileType qf wincmd J
@@ -290,17 +285,6 @@
 
     " Close all buffers but the current one
     nnoremap <leader>o :call <SID>CloseAllBuffers()<cr>
-
-    " Enable tmux-navigator for all modes
-    nnoremap <silent> <C-h> :TmuxNavigateLeft<cr>
-    nnoremap <silent> <C-j> :TmuxNavigateDown<cr>
-    nnoremap <silent> <C-k> :TmuxNavigateUp<cr>
-    nnoremap <silent> <C-l> :TmuxNavigateRight<cr>
-
-    inoremap <silent> <C-h> <Esc>:TmuxNavigateLeft<cr>
-    inoremap <silent> <C-j> <Esc>:TmuxNavigateDown<cr>
-    inoremap <silent> <C-k> <Esc>:TmuxNavigateUp<cr>
-    inoremap <silent> <C-l> <Esc>:TmuxNavigateRight<cr>
 
     " Source .vimrc
     map <silent> <leader>V :source ~/.vimrc<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
@@ -353,8 +337,8 @@
     vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR><c-o>
 
     " Toggling NERDTree
-    nmap <C-n> :NERDTreeToggle<CR>
-    nmap ,n :NERDTreeFind<CR>
+    nmap <C-b> :NERDTreeToggle<CR>
+    nmap ,f :NERDTreeFind<CR>
 
     " Open files/folders with 'l'
     " And open recursively with Space
@@ -463,6 +447,138 @@
         let g:vim_markdown_autowrite = 1
         let g:vim_markdown_no_extensions_in_markdown = 1
         let g:vim_markdown_math = 1
+    " }
+    " coc {
+        set cmdheight=2
+        " diagnostics appear/become resolved.
+        if has("nvim-0.5.0") || has("patch-8.1.1564")
+          " Recently vim can merge signcolumn and number column into one
+          set signcolumn=number
+        else
+          set signcolumn=yes
+        endif
+        
+        " Use tab for trigger completion with characters ahead and navigate.
+        " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+        " other plugin before putting this into your config.
+        inoremap <silent><expr> <TAB>
+              \ pumvisible() ? "\<C-n>" :
+              \ <SID>check_back_space() ? "\<TAB>" :
+              \ coc#refresh()
+        inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+        
+        function! s:check_back_space() abort
+          let col = col('.') - 1
+          return !col || getline('.')[col - 1]  =~# '\s'
+        endfunction
+        
+        " Use <c-space> to trigger completion.
+        if has('nvim')
+          inoremap <silent><expr> <c-space> coc#refresh()
+        else
+          inoremap <silent><expr> <c-@> coc#refresh()
+        endif
+        
+        " Make <CR> auto-select the first completion item and notify coc.nvim to
+        " format on enter, <cr> could be remapped by other vim plugin
+        inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                                      \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+        
+        " Use `[g` and `]g` to navigate diagnostics
+        " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+        nmap <silent> [g <Plug>(coc-diagnostic-prev)
+        nmap <silent> ]g <Plug>(coc-diagnostic-next)
+        
+        " GoTo code navigation.
+        nmap <silent> gd <Plug>(coc-definition)
+        nmap <silent> gy <Plug>(coc-type-definition)
+        nmap <silent> gi <Plug>(coc-implementation)
+        nmap <silent> gr <Plug>(coc-references)
+        
+        " Use K to show documentation in preview window.
+        nnoremap <silent> K :call <SID>show_documentation()<CR>
+        
+        function! s:show_documentation()
+          if (index(['vim','help'], &filetype) >= 0)
+            execute 'h '.expand('<cword>')
+          elseif (coc#rpc#ready())
+            call CocActionAsync('doHover')
+          else
+            execute '!' . &keywordprg . " " . expand('<cword>')
+          endif
+        endfunction
+        
+        " Highlight the symbol and its references when holding the cursor.
+        autocmd CursorHold * silent call CocActionAsync('highlight')
+        
+        " Symbol renaming.
+        nmap <leader>rn <Plug>(coc-rename)
+        
+        augroup mygroup
+          autocmd!
+          " Setup formatexpr specified filetype(s).
+          autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+          " Update signature help on jump placeholder.
+          autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+        augroup end
+        
+        " Applying codeAction to the selected region.
+        " Example: `<leader>aap` for current paragraph
+        xmap <leader>a  <Plug>(coc-codeaction-selected)
+        nmap <leader>a  <Plug>(coc-codeaction-selected)
+        
+        " Remap keys for applying codeAction to the current buffer.
+        nmap <leader>ac  <Plug>(coc-codeaction)
+        " Apply AutoFix to problem on the current line.
+        nmap <leader>qf  <Plug>(coc-fix-current)
+        
+        " Map function and class text objects
+        " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+        xmap if <Plug>(coc-funcobj-i)
+        omap if <Plug>(coc-funcobj-i)
+        xmap af <Plug>(coc-funcobj-a)
+        omap af <Plug>(coc-funcobj-a)
+        xmap ic <Plug>(coc-classobj-i)
+        omap ic <Plug>(coc-classobj-i)
+        xmap ac <Plug>(coc-classobj-a)
+        omap ac <Plug>(coc-classobj-a)
+        
+        " Use CTRL-S for selections ranges.
+        " Requires 'textDocument/selectionRange' support of language server.
+        nmap <silent> <C-s> <Plug>(coc-range-select)
+        xmap <silent> <C-s> <Plug>(coc-range-select)
+        
+        " Add `:Format` command to format current buffer.
+        command! -nargs=0 Format :call CocAction('format')
+        
+        " Add `:Fold` command to fold current buffer.
+        command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+        
+        " Add `:OR` command for organize imports of the current buffer.
+        command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+        
+        " Add (Neo)Vim's native statusline support.
+        " NOTE: Please see `:h coc-status` for integrations with external plugins that
+        " provide custom statusline: lightline.vim, vim-airline.
+        set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+        
+        " Mappings for CoCList
+        " Show all diagnostics.
+        nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+        " Manage extensions.
+        nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+        " Show commands.
+        nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+        " Find symbol of current document.
+        nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+        " Search workspace symbols.
+        nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+        " Do default action for next item.
+        nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+        " Do default action for previous item.
+        nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+        " Resume latest coc list.
+        nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
     " }
 "}
 
